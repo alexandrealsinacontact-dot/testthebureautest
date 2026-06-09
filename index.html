@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blind Test — The Bureau Paris 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:   #060608;
+  --gold:    #C9A84C;
+  --gold-lt: #E2C47A;
+  --gold-dim:#5C4419;
+  --rose:    #D4547A;
+  --rose-lt: #EE7FA0;
+  --white:   #F2EDE4;
+  --grey:    #141416;
+  --muted:   #4A4A52;
+  --purple:  #8B7DB8;
+  --spotify: #1DB954;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--black);
+  font-family: 'Inter', sans-serif;
+  color: var(--white);
+  overflow: hidden;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.028;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ── AMBIENT GLOW ── */
+.ambient {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  opacity: 0;
+  transition: opacity 2s ease;
+  z-index: 0;
+}
+.ambient-1 {
+  width: 500px; height: 500px;
+  top: -200px; right: -100px;
+  background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+}
+.ambient-2 {
+  width: 400px; height: 400px;
+  bottom: -150px; left: -80px;
+  background: radial-gradient(circle, rgba(212,84,122,0.08) 0%, transparent 70%);
+}
+.ambient-1.on, .ambient-2.on { opacity: 1; }
+
+/* ── DISCOBALL ── */
+#discoball {
+  position: fixed;
+  top: -100px; right: -60px;
+  width: 280px; height: 280px;
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 0;
+  animation: ballSpin 40s linear infinite;
+}
+@keyframes ballSpin { to { transform: rotate(360deg); } }
+
+#rays {
+  position: fixed;
+  top: -80px; right: -40px;
+  width: 600px; height: 600px;
+  pointer-events: none;
+  z-index: 0;
+  animation: raysSpin 10s linear infinite;
+  opacity: 0;
+  transition: opacity 1.5s;
+}
+#rays.active { opacity: 1; }
+@keyframes raysSpin { to { transform: rotate(360deg); } }
+
+/* ── DECK ── */
+#deck {
+  position: relative;
+  width: 100vw; height: 100vh;
+  z-index: 1;
+}
+
+/* ── SLIDES ── */
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8vh 10vw;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.slide.center {
+  align-items: center;
+  text-align: center;
+}
+
+/* ── HORIZONTAL LINE ── */
+.rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim) 15%, var(--gold) 50%, var(--gold-dim) 85%, transparent);
+  margin: 2.5vh 0;
+}
+.rule-short {
+  width: 48px;
+  height: 1px;
+  background: var(--gold);
+  margin: 2vh 0;
+}
+
+/* ── COVER ── */
+.cover-eyebrow {
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 3.5vh;
+}
+.cover-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(5rem, 10vw, 9rem);
+  font-weight: 300;
+  line-height: 0.88;
+  color: var(--white);
+  letter-spacing: -0.03em;
+}
+.cover-title em {
+  font-style: italic;
+  color: var(--gold-lt);
+}
+.cover-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--rose-lt);
+  letter-spacing: 0.1em;
+  margin-top: 2vh;
+  opacity: 0.85;
+}
+.cover-rules {
+  margin-top: 5vh;
+  display: flex;
+  gap: 3vw;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.68rem;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.rule-item .val { color: var(--gold-lt); font-weight: 500; }
+.rule-item .neg { color: var(--rose); }
+.cover-count {
+  margin-top: 2vh;
+  font-size: 0.55rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #2A2A30;
+}
+
+/* ── SECTION BREAK ── */
+.section-label {
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 2vh;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 7vw, 6.5rem);
+  font-weight: 300;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.section-sub {
+  margin-top: 1.5vh;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── QUESTION SLIDE ── */
+.q-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  margin-bottom: 2.5vh;
+}
+.q-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+  padding: 0.3em 0.9em;
+}
+.q-flag {
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.q-flag.fr { color: var(--rose-lt); }
+.q-flag.intl { color: var(--purple); }
+
+.q-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(8rem, 22vw, 18rem);
+  font-weight: 300;
+  color: var(--gold-dim);
+  line-height: 0.8;
+  user-select: none;
+  opacity: 0.4;
+}
+
+.q-hint {
+  position: absolute;
+  bottom: 7vh;
+  left: 10vw;
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #2E2E36;
+}
+
+/* ── SCORING ── */
+.scoring {
+  position: absolute;
+  bottom: 6vh;
+  right: 10vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25em;
+}
+.scoring-row {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  font-weight: 400;
+}
+.scoring-row .pts { color: var(--gold-lt); }
+.scoring-row .neg { color: var(--rose); }
+.scoring-row .dim { color: #383840; }
+
+/* ── REVEAL ── */
+.r-artist {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 6.5vw, 5.5rem);
+  font-weight: 600;
+  color: var(--gold-lt);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.r-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--rose-lt);
+  margin-top: 1.5vh;
+  line-height: 1.1;
+}
+.r-year {
+  margin-top: 2.5vh;
+  font-size: 0.58rem;
+  letter-spacing: 0.38em;
+  color: var(--gold-dim);
+  font-weight: 500;
+}
+
+/* ── SPOTIFY PLAYER ── */
+#spotify-widget {
+  position: fixed;
+  bottom: 3.5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(10, 10, 12, 0.9);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 10px 18px;
+  backdrop-filter: blur(12px);
+  transition: opacity 0.4s;
+  min-width: 340px;
+}
+
+#spotify-widget .track-info {
+  flex: 1;
+  min-width: 0;
+}
+#spotify-widget .track-name {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#spotify-widget .track-artist {
+  font-size: 0.52rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+#spotify-widget .sp-btn {
+  width: 28px; height: 28px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+#spotify-widget .sp-btn:hover { opacity: 1; }
+.sp-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--spotify);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+.sp-dot.paused { animation: none; opacity: 0.3; }
+
+/* ── PROGRESS ── */
+#progress {
+  position: fixed;
+  bottom: 0; left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 0.5s ease;
+  z-index: 100;
+}
+
+/* ── COUNTER ── */
+#counter {
+  position: fixed;
+  top: 3vh; right: 4vw;
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+  color: #252530;
+  z-index: 100;
+}
+
+/* ── SPOTIFY CONNECT OVERLAY ── */
+#sp-connect {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,6,8,0.92);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+  backdrop-filter: blur(8px);
+}
+#sp-connect h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  font-weight: 300;
+  color: var(--white);
+  letter-spacing: 0.02em;
+}
+#sp-connect p {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.9;
+}
+.sp-connect-btn {
+  margin-top: 1vh;
+  padding: 0.9em 2.2em;
+  background: var(--spotify);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.sp-connect-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(29,185,84,0.3);
+}
+.sp-skip-btn {
+  margin-top: 0.5vh;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #333;
+  transition: color 0.2s;
+}
+.sp-skip-btn:hover { color: var(--muted); }
+
+/* ── DANGER ── */
+.danger-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--rose);
+  border: 1px solid var(--rose);
+  padding: 0.35em 1em;
+  margin-top: 2.5vh;
+}
+
+/* ── REVEAL ANIMATION ── */
+.reveal-content > * {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.slide.active .reveal-content > *:nth-child(1) { opacity:1; transform:none; transition-delay:0.08s; }
+.slide.active .reveal-content > *:nth-child(2) { opacity:1; transform:none; transition-delay:0.22s; }
+.slide.active .reveal-content > *:nth-child(3) { opacity:1; transform:none; transition-delay:0.36s; }
+.slide.active .reveal-content > *:nth-child(4) { opacity:1; transform:none; transition-delay:0.5s; }
+.slide.active .reveal-content > *:nth-child(5) { opacity:1; transform:none; transition-delay:0.64s; }
+
+/* ── FINAL ── */
+.fin-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(4rem, 8vw, 7rem);
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1;
+}
+.fin-sub {
+  margin-top: 2.5vh;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--gold);
+  font-weight: 300;
+}
+</style>
+</head>
+<body>
+
+<!-- Spotify Connect Overlay -->
+<div id="sp-connect">
+  <div class="cover-eyebrow">The Bureau — Paris 8</div>
+  <h2>Blind Test <em style="font-style:italic;color:var(--gold-lt)">Années 80</em></h2>
+  <p>Connecte ton compte Spotify Premium pour piloter la musique automatiquement depuis ce navigateur.</p>
+  <button class="sp-connect-btn" id="btn-sp-login">Se connecter à Spotify</button>
+  <button class="sp-skip-btn" id="btn-sp-skip">Continuer sans Spotify →</button>
+</div>
+
+<!-- Ambient lights -->
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<!-- Disco ball -->
+<svg id="discoball" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="ballGrad" cx="38%" cy="32%">
+      <stop offset="0%" stop-color="#E2C47A" stop-opacity="1"/>
+      <stop offset="55%" stop-color="#5C4419" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#100D04" stop-opacity="0.6"/>
+    </radialGradient>
+    <clipPath id="ballClip"><circle cx="100" cy="100" r="85"/></clipPath>
+  </defs>
+  <circle cx="100" cy="100" r="85" fill="url(#ballGrad)"/>
+  <g clip-path="url(#ballClip)" fill="none" stroke="#C9A84C" stroke-width="0.4" opacity="0.5">
+    <ellipse cx="100" cy="100" rx="85" ry="10"/>
+    <ellipse cx="100" cy="100" rx="80" ry="28"/>
+    <ellipse cx="100" cy="100" rx="65" ry="48"/>
+    <ellipse cx="100" cy="100" rx="40" ry="65"/>
+    <ellipse cx="100" cy="100" rx="10" ry="80"/>
+    <line x1="100" y1="15" x2="100" y2="185"/>
+    <line x1="70" y1="17" x2="130" y2="183"/>
+    <line x1="42" y1="26" x2="158" y2="174"/>
+    <line x1="20" y1="46" x2="180" y2="154"/>
+    <line x1="130" y1="17" x2="70" y2="183"/>
+    <line x1="158" y1="26" x2="42" y2="174"/>
+    <line x1="180" y1="46" x2="20" y2="154"/>
+  </g>
+  <ellipse cx="72" cy="58" rx="16" ry="8" fill="white" opacity="0.1" transform="rotate(-20 72 58)"/>
+</svg>
+
+<!-- Rays -->
+<svg id="rays" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(300,300)">
+    <line x1="0" y1="0" x2="280" y2="-50" stroke="#C9A84C" stroke-width="1" opacity="0.07"/>
+    <line x1="0" y1="0" x2="250" y2="120" stroke="#D4547A" stroke-width="0.8" opacity="0.05"/>
+    <line x1="0" y1="0" x2="-200" y2="200" stroke="#C9A84C" stroke-width="0.6" opacity="0.04"/>
+    <line x1="0" y1="0" x2="100" y2="280" stroke="#E2C47A" stroke-width="1" opacity="0.06"/>
+    <line x1="0" y1="0" x2="-280" y2="-100" stroke="#D4547A" stroke-width="0.8" opacity="0.04"/>
+    <line x1="0" y1="0" x2="180" y2="-260" stroke="#C9A84C" stroke-width="0.6" opacity="0.05"/>
+  </g>
+</svg>
+
+<div id="progress"></div>
+<div id="counter"></div>
+
+<!-- Spotify mini widget (invisible — contrôle uniquement) -->
+<div id="spotify-widget" style="display:none;visibility:hidden;pointer-events:none;position:fixed;bottom:-999px">
+  <div class="sp-dot" id="sp-dot"></div>
+  <div class="track-info">
+    <div class="track-name" id="sp-track-name">—</div>
+    <div class="track-artist" id="sp-track-artist">Spotify</div>
+  </div>
+  <button class="sp-btn" id="sp-prev" title="Précédent">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+  </button>
+  <button class="sp-btn" id="sp-playpause" title="Play/Pause">
+    <svg id="sp-play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <button class="sp-btn" id="sp-next" title="Suivant">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zm-3.5 6L4 6v12z"/></svg>
+  </button>
+</div>
+
+<div id="deck">
+
+<!-- COVER -->
+<div class="slide center" data-type="cover">
+  <div class="reveal-content" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div class="cover-eyebrow">The Bureau — Paris 8 — Jeudi soir</div>
+    <div class="rule"></div>
+    <div class="cover-title">Blind Test<br><em>Années 80</em></div>
+    <div class="cover-sub">France &amp; International</div>
+    <div class="rule" style="margin-top:4vh"></div>
+    <div class="cover-rules">
+      <div class="rule-item">★ <span class="val">1 pt</span> &nbsp;artiste ou titre</div>
+      <div class="rule-item" style="color:#1a1a22">·</div>
+      <div class="rule-item">★★ <span class="val">2 pts</span> &nbsp;artiste + titre</div>
+      <div class="rule-item" style="color:#1a1a22">·</div>
+      <div class="rule-item"><span class="neg">− 1 pt</span> &nbsp;mauvaise réponse (DZ)</div>
+    </div>
+    <div class="cover-count">40 titres &nbsp;·&nbsp; 80 % français &nbsp;·&nbsp; 20 % international</div>
+  </div>
+</div>
+
+<!-- ROUND 1 -->
+<div class="slide center" data-type="section">
+  <div class="reveal-content" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div class="section-label">Round 1</div>
+    <div class="rule-short" style="margin:0 auto 2.5vh"></div>
+    <div class="section-title">Questions 1 — 10</div>
+    <div class="section-sub">Années 80 &nbsp;·&nbsp; France</div>
+  </div>
+</div>
+
+<!-- Q1 Indochine -->
+<div class="slide" data-type="question" data-num="1" data-country="fr" data-spotify-uri="spotify:track:4A6GoXAYqnwf4t9dCiqbVR">
+  <div class="q-meta"><div class="q-num">01</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div>
+  <div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="1" data-spotify-uri="spotify:track:4A6GoXAYqnwf4t9dCiqbVR">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">01</div>
+    <div class="rule"></div>
+    <div class="r-artist">Indochine</div>
+    <div class="r-title">« L'Aventurier »</div>
+    <div class="r-year">1982</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q2 Téléphone -->
+<div class="slide" data-type="question" data-num="2" data-country="fr" data-spotify-uri="spotify:track:3BuIWjl5J6FBVhfLPEKFV6">
+  <div class="q-meta"><div class="q-num">02</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="2" data-spotify-uri="spotify:track:3BuIWjl5J6FBVhfLPEKFV6">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">02</div>
+    <div class="rule"></div>
+    <div class="r-artist">Téléphone</div>
+    <div class="r-title">« Un autre monde »</div>
+    <div class="r-year">1984</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q3 Mylène Farmer -->
+<div class="slide" data-type="question" data-num="3" data-country="fr" data-spotify-uri="spotify:track:6v7TPHBaVAzI1lmZVXgn3H">
+  <div class="q-meta"><div class="q-num">03</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="3" data-spotify-uri="spotify:track:6v7TPHBaVAzI1lmZVXgn3H">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">03</div>
+    <div class="rule"></div>
+    <div class="r-artist">Mylène Farmer</div>
+    <div class="r-title">« Libertine »</div>
+    <div class="r-year">1986</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q4 Jean-Jacques Goldman -->
+<div class="slide" data-type="question" data-num="4" data-country="fr" data-spotify-uri="spotify:track:2fEqlMHHkGUFV4TCPP6bBP">
+  <div class="q-meta"><div class="q-num">04</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="4" data-spotify-uri="spotify:track:2fEqlMHHkGUFV4TCPP6bBP">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">04</div>
+    <div class="rule"></div>
+    <div class="r-artist">Jean-Jacques Goldman</div>
+    <div class="r-title">« Il suffira d'un signe »</div>
+    <div class="r-year">1981</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q5 Étienne Daho -->
+<div class="slide" data-type="question" data-num="5" data-country="fr" data-spotify-uri="spotify:track:5GjCO3pBf8WgxXS3V1CWBL">
+  <div class="q-meta"><div class="q-num">05</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="5" data-spotify-uri="spotify:track:5GjCO3pBf8WgxXS3V1CWBL">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">05</div>
+    <div class="rule"></div>
+    <div class="r-artist">Étienne Daho</div>
+    <div class="r-title">« Sortir ce soir »</div>
+    <div class="r-year">1984</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q6 Lio -->
+<div class="slide" data-type="question" data-num="6" data-country="fr" data-spotify-uri="spotify:track:1XnAUMvj1aBQHBnCiCgEnU">
+  <div class="q-meta"><div class="q-num">06</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="6" data-spotify-uri="spotify:track:1XnAUMvj1aBQHBnCiCgEnU">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">06</div>
+    <div class="rule"></div>
+    <div class="r-artist">Lio</div>
+    <div class="r-title">« Banana Split »</div>
+    <div class="r-year">1980</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q7 Les Rita Mitsouko -->
+<div class="slide" data-type="question" data-num="7" data-country="fr" data-spotify-uri="spotify:track:1QbSnP01c82YhT8yiS4sEA">
+  <div class="q-meta"><div class="q-num">07</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="7" data-spotify-uri="spotify:track:1QbSnP01c82YhT8yiS4sEA">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">07</div>
+    <div class="rule"></div>
+    <div class="r-artist">Les Rita Mitsouko</div>
+    <div class="r-title">« C'est comme ça »</div>
+    <div class="r-year">1986</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q8 Vanessa Paradis -->
+<div class="slide" data-type="question" data-num="8" data-country="fr" data-spotify-uri="spotify:track:2Y7O5gVCWVjzVnp5gEJiS7">
+  <div class="q-meta"><div class="q-num">08</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="8" data-spotify-uri="spotify:track:2Y7O5gVCWVjzVnp5gEJiS7">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">08</div>
+    <div class="rule"></div>
+    <div class="r-artist">Vanessa Paradis</div>
+    <div class="r-title">« Joe le taxi »</div>
+    <div class="r-year">1987</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q9 Daniel Balavoine -->
+<div class="slide" data-type="question" data-num="9" data-country="fr" data-spotify-uri="spotify:track:5a8c3oN1xg3jKJpQCE9eFb">
+  <div class="q-meta"><div class="q-num">09</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="9" data-spotify-uri="spotify:track:5a8c3oN1xg3jKJpQCE9eFb">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">09</div>
+    <div class="rule"></div>
+    <div class="r-artist">Daniel Balavoine</div>
+    <div class="r-title">« Le chanteur »</div>
+    <div class="r-year">1982</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q10 Début de Soirée -->
+<div class="slide" data-type="question" data-num="10" data-country="fr" data-spotify-uri="spotify:track:6sTMO5fxFWxSHLELbKi6Ek">
+  <div class="q-meta"><div class="q-num">10</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="10" data-spotify-uri="spotify:track:6sTMO5fxFWxSHLELbKi6Ek">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">10</div>
+    <div class="rule"></div>
+    <div class="r-artist">Début de Soirée</div>
+    <div class="r-title">« Nuit de folie »</div>
+    <div class="r-year">1986</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- ROUND 2 -->
+<div class="slide center" data-type="section">
+  <div class="reveal-content" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div class="section-label">Round 2</div>
+    <div class="rule-short" style="margin:0 auto 2.5vh"></div>
+    <div class="section-title">Questions 11 — 20</div>
+    <div class="section-sub">Années 80 &nbsp;·&nbsp; France</div>
+  </div>
+</div>
+
+<!-- Q11 Jeanne Mas -->
+<div class="slide" data-type="question" data-num="11" data-country="fr" data-spotify-uri="spotify:track:0eSAatGCpLPr1mByVlHRHE">
+  <div class="q-meta"><div class="q-num">11</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="11" data-spotify-uri="spotify:track:0eSAatGCpLPr1mByVlHRHE">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">11</div>
+    <div class="rule"></div>
+    <div class="r-artist">Jeanne Mas</div>
+    <div class="r-title">« En rouge et noir »</div>
+    <div class="r-year">1986</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q12 Marc Lavoine -->
+<div class="slide" data-type="question" data-num="12" data-country="fr" data-spotify-uri="spotify:track:0IDDYTDKaO9MkqnWrR4cGW">
+  <div class="q-meta"><div class="q-num">12</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="12" data-spotify-uri="spotify:track:0IDDYTDKaO9MkqnWrR4cGW">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">12</div>
+    <div class="rule"></div>
+    <div class="r-artist">Marc Lavoine</div>
+    <div class="r-title">« Elle a les yeux revolver »</div>
+    <div class="r-year">1985</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q13 Renaud -->
+<div class="slide" data-type="question" data-num="13" data-country="fr" data-spotify-uri="spotify:track:5aqT5vBBRixMhT3ZhE1G3W">
+  <div class="q-meta"><div class="q-num">13</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="13" data-spotify-uri="spotify:track:5aqT5vBBRixMhT3ZhE1G3W">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">13</div>
+    <div class="rule"></div>
+    <div class="r-artist">Renaud</div>
+    <div class="r-title">« Mistral Gagnant »</div>
+    <div class="r-year">1985</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q14 Alain Bashung -->
+<div class="slide" data-type="question" data-num="14" data-country="fr" data-spotify-uri="spotify:track:7klWTvVVVqAjh2xUi4D4Wx">
+  <div class="q-meta"><div class="q-num">14</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="14" data-spotify-uri="spotify:track:7klWTvVVVqAjh2xUi4D4Wx">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">14</div>
+    <div class="rule"></div>
+    <div class="r-artist">Alain Bashung</div>
+    <div class="r-title">« Gaby oh Gaby »</div>
+    <div class="r-year">1980</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q15 France Gall -->
+<div class="slide" data-type="question" data-num="15" data-country="fr" data-spotify-uri="spotify:track:1jC6d7MwJOAnFP59BOFHMo">
+  <div class="q-meta"><div class="q-num">15</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="15" data-spotify-uri="spotify:track:1jC6d7MwJOAnFP59BOFHMo">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">15</div>
+    <div class="rule"></div>
+    <div class="r-artist">France Gall</div>
+    <div class="r-title">« Évidemment »</div>
+    <div class="r-year">1987</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q16 Plastic Bertrand -->
+<div class="slide" data-type="question" data-num="16" data-country="fr" data-spotify-uri="spotify:track:2ZVrMQ3iqkWqcLMEb0oZl5">
+  <div class="q-meta"><div class="q-num">16</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="16" data-spotify-uri="spotify:track:2ZVrMQ3iqkWqcLMEb0oZl5">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">16</div>
+    <div class="rule"></div>
+    <div class="r-artist">Plastic Bertrand</div>
+    <div class="r-title">« Ça plane pour moi »</div>
+    <div class="r-year">1977</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q17 Niagara -->
+<div class="slide" data-type="question" data-num="17" data-country="fr" data-spotify-uri="spotify:track:4DvCpYKCfhHxuFZz0YQDPX">
+  <div class="q-meta"><div class="q-num">17</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="17" data-spotify-uri="spotify:track:4DvCpYKCfhHxuFZz0YQDPX">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">17</div>
+    <div class="rule"></div>
+    <div class="r-artist">Niagara</div>
+    <div class="r-title">« L'Amour à la machine »</div>
+    <div class="r-year">1986</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q18 Stephan Eicher -->
+<div class="slide" data-type="question" data-num="18" data-country="fr" data-spotify-uri="spotify:track:0HFoHiO0pKi3jKTrK2vPE1">
+  <div class="q-meta"><div class="q-num">18</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="18" data-spotify-uri="spotify:track:0HFoHiO0pKi3jKTrK2vPE1">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">18</div>
+    <div class="rule"></div>
+    <div class="r-artist">Stephan Eicher</div>
+    <div class="r-title">« Déjeuner en paix »</div>
+    <div class="r-year">1988</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q19 Isabelle Adjani -->
+<div class="slide" data-type="question" data-num="19" data-country="fr" data-spotify-uri="spotify:track:2hAKdkrSn0A2TQCb1PoLiC">
+  <div class="q-meta"><div class="q-num">19</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="19" data-spotify-uri="spotify:track:2hAKdkrSn0A2TQCb1PoLiC">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">19</div>
+    <div class="rule"></div>
+    <div class="r-artist">Isabelle Adjani</div>
+    <div class="r-title">« Pull Marine »</div>
+    <div class="r-year">1983</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q20 Charlélie Couture -->
+<div class="slide" data-type="question" data-num="20" data-country="fr" data-spotify-uri="spotify:track:6ZSxhbJz2D3YAgGDi9oVOp">
+  <div class="q-meta"><div class="q-num">20</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="20" data-spotify-uri="spotify:track:6ZSxhbJz2D3YAgGDi9oVOp">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">20</div>
+    <div class="rule"></div>
+    <div class="r-artist">Charlélie Couture</div>
+    <div class="r-title">« Comme un avion sans ailes »</div>
+    <div class="r-year">1983</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- ROUND 3 -->
+<div class="slide center" data-type="section">
+  <div class="reveal-content" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div class="section-label">Round 3</div>
+    <div class="rule-short" style="margin:0 auto 2.5vh"></div>
+    <div class="section-title">Questions 21 — 32</div>
+    <div class="section-sub">France &amp; International</div>
+  </div>
+</div>
+
+<!-- Q21 Gold -->
+<div class="slide" data-type="question" data-num="21" data-country="fr" data-spotify-uri="spotify:track:7aTRPSYCqLIfQiL7yXkRMI">
+  <div class="q-meta"><div class="q-num">21</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="21" data-spotify-uri="spotify:track:7aTRPSYCqLIfQiL7yXkRMI">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">21</div>
+    <div class="rule"></div>
+    <div class="r-artist">Gold</div>
+    <div class="r-title">« Capitaine Abandonné »</div>
+    <div class="r-year">1986</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q22 Étienne Daho (remplace Patrick Bruel) -->
+<div class="slide" data-type="question" data-num="22" data-country="fr" data-spotify-uri="spotify:track:5JGQ0xwpuDqvuNYHp5bTuT">
+  <div class="q-meta"><div class="q-num">22</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="22" data-spotify-uri="spotify:track:5JGQ0xwpuDqvuNYHp5bTuT">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">22</div>
+    <div class="rule"></div>
+    <div class="r-artist">Étienne Daho</div>
+    <div class="r-title">« Week-end à Rome »</div>
+    <div class="r-year">1983</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q23 Alain Souchon -->
+<div class="slide" data-type="question" data-num="23" data-country="fr" data-spotify-uri="spotify:track:6EIZFt1TqXY31GW8UxfFLx">
+  <div class="q-meta"><div class="q-num">23</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="23" data-spotify-uri="spotify:track:6EIZFt1TqXY31GW8UxfFLx">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">23</div>
+    <div class="rule"></div>
+    <div class="r-artist">Alain Souchon</div>
+    <div class="r-title">« Foule sentimentale »</div>
+    <div class="r-year">1993</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q24 Laurent Voulzy -->
+<div class="slide" data-type="question" data-num="24" data-country="fr" data-spotify-uri="spotify:track:16MPUlqcZXjqq2Ax8P1GTo">
+  <div class="q-meta"><div class="q-num">24</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="24" data-spotify-uri="spotify:track:16MPUlqcZXjqq2Ax8P1GTo">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">24</div>
+    <div class="rule"></div>
+    <div class="r-artist">Laurent Voulzy</div>
+    <div class="r-title">« Rockollection »</div>
+    <div class="r-year">1977</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q25 Michel Berger -->
+<div class="slide" data-type="question" data-num="25" data-country="fr" data-spotify-uri="spotify:track:2HiLhqBf0GMKSqBGk2nqSg">
+  <div class="q-meta"><div class="q-num">25</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="25" data-spotify-uri="spotify:track:2HiLhqBf0GMKSqBGk2nqSg">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">25</div>
+    <div class="rule"></div>
+    <div class="r-artist">Michel Berger</div>
+    <div class="r-title">« Sentimental Bourreau »</div>
+    <div class="r-year">1980</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q26 Serge Gainsbourg -->
+<div class="slide" data-type="question" data-num="26" data-country="fr" data-spotify-uri="spotify:track:0bLkCjxULDp0KGx0sZFWsm">
+  <div class="q-meta"><div class="q-num">26</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="26" data-spotify-uri="spotify:track:0bLkCjxULDp0KGx0sZFWsm">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">26</div>
+    <div class="rule"></div>
+    <div class="r-artist">Serge Gainsbourg</div>
+    <div class="r-title">« Aux armes et caetera »</div>
+    <div class="r-year">1979</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q27 Bernard Lavilliers -->
+<div class="slide" data-type="question" data-num="27" data-country="fr" data-spotify-uri="spotify:track:0oVNx2CiHGBaKPM1m5SJST">
+  <div class="q-meta"><div class="q-num">27</div><div class="q-flag fr">France</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="27" data-spotify-uri="spotify:track:0oVNx2CiHGBaKPM1m5SJST">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">27</div>
+    <div class="rule"></div>
+    <div class="r-artist">Bernard Lavilliers</div>
+    <div class="r-title">« On the Road Again »</div>
+    <div class="r-year">1979</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q28 Michael Jackson -->
+<div class="slide" data-type="question" data-num="28" data-country="intl" data-spotify-uri="spotify:track:5ChkMS8OtdzJeqyybCc9R5">
+  <div class="q-meta"><div class="q-num">28</div><div class="q-flag intl">International</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="28" data-spotify-uri="spotify:track:5ChkMS8OtdzJeqyybCc9R5">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">28</div>
+    <div class="rule"></div>
+    <div class="r-artist">Michael Jackson</div>
+    <div class="r-title">« Billie Jean »</div>
+    <div class="r-year">1983</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q29 Madonna -->
+<div class="slide" data-type="question" data-num="29" data-country="intl" data-spotify-uri="spotify:track:1z3ugFmUKoCzGsI6JdR5uK">
+  <div class="q-meta"><div class="q-num">29</div><div class="q-flag intl">International</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="29" data-spotify-uri="spotify:track:1z3ugFmUKoCzGsI6JdR5uK">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">29</div>
+    <div class="rule"></div>
+    <div class="r-artist">Madonna</div>
+    <div class="r-title">« Like a Prayer »</div>
+    <div class="r-year">1989</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q30 Prince -->
+<div class="slide" data-type="question" data-num="30" data-country="intl" data-spotify-uri="spotify:track:54X78diSLoUDI3joC2bjMz">
+  <div class="q-meta"><div class="q-num">30</div><div class="q-flag intl">International</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="30" data-spotify-uri="spotify:track:54X78diSLoUDI3joC2bjMz">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">30</div>
+    <div class="rule"></div>
+    <div class="r-artist">Prince</div>
+    <div class="r-title">« Purple Rain »</div>
+    <div class="r-year">1984</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q31 David Bowie -->
+<div class="slide" data-type="question" data-num="31" data-country="intl" data-spotify-uri="spotify:track:0IKEgHMFaXj5i4RMcKNUfX">
+  <div class="q-meta"><div class="q-num">31</div><div class="q-flag intl">International</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="31" data-spotify-uri="spotify:track:0IKEgHMFaXj5i4RMcKNUfX">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">31</div>
+    <div class="rule"></div>
+    <div class="r-artist">David Bowie</div>
+    <div class="r-title">« Let's Dance »</div>
+    <div class="r-year">1983</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- Q32 Tina Turner -->
+<div class="slide" data-type="question" data-num="32" data-country="intl" data-spotify-uri="spotify:track:4NSjdFkIFRXOmBRaCPvLrP">
+  <div class="q-meta"><div class="q-num">32</div><div class="q-flag intl">International</div></div>
+  <div class="rule"></div><div class="q-mark">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div><div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div></div>
+</div>
+<div class="slide" data-type="reveal" data-num="32" data-spotify-uri="spotify:track:4NSjdFkIFRXOmBRaCPvLrP">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh">32</div>
+    <div class="rule"></div>
+    <div class="r-artist">Tina Turner</div>
+    <div class="r-title">« What's Love Got to Do with It »</div>
+    <div class="r-year">1984</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span></div></div>
+</div>
+
+<!-- DANGER ZONE -->
+<div class="slide center" data-type="section" data-danger="true">
+  <div class="reveal-content" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div class="section-label" style="color:var(--rose)">Danger Zone</div>
+    <div class="rule-short" style="margin:0 auto 2.5vh;background:var(--rose)"></div>
+    <div class="section-title">Questions 33 — 40</div>
+    <div class="danger-badge">⚡ &nbsp;−1 pt si mauvaise réponse</div>
+  </div>
+</div>
+
+<!-- Q33 Wham! -->
+<div class="slide" data-type="question" data-num="33" data-country="intl" data-danger="true" data-spotify-uri="spotify:track:1NUXfJiOGLMBr4kzMBTfpZ">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">33</div><div class="q-flag intl">International</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="33" data-danger="true" data-spotify-uri="spotify:track:1NUXfJiOGLMBr4kzMBTfpZ">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">33</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">Wham!</div>
+    <div class="r-title">« Wake Me Up Before You Go-Go »</div>
+    <div class="r-year">1984</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- Q34 Depeche Mode -->
+<div class="slide" data-type="question" data-num="34" data-country="intl" data-danger="true" data-spotify-uri="spotify:track:3MiWSwMEkXZNFrKBHWNxoy">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">34</div><div class="q-flag intl">International</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="34" data-danger="true" data-spotify-uri="spotify:track:3MiWSwMEkXZNFrKBHWNxoy">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">34</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">Depeche Mode</div>
+    <div class="r-title">« Personal Jesus »</div>
+    <div class="r-year">1989</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- Q35 The Police -->
+<div class="slide" data-type="question" data-num="35" data-country="intl" data-danger="true" data-spotify-uri="spotify:track:1Je1IMUlBXfWd1EtMDMnBB">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">35</div><div class="q-flag intl">International</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="35" data-danger="true" data-spotify-uri="spotify:track:1Je1IMUlBXfWd1EtMDMnBB">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">35</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">The Police</div>
+    <div class="r-title">« Every Breath You Take »</div>
+    <div class="r-year">1983</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- Q36 Indochine -->
+<div class="slide" data-type="question" data-num="36" data-country="fr" data-danger="true" data-spotify-uri="spotify:track:6eFPrjzUZRvBTbPsGlYPnE">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">36</div><div class="q-flag fr">France</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="36" data-danger="true" data-spotify-uri="spotify:track:6eFPrjzUZRvBTbPsGlYPnE">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">36</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">Indochine</div>
+    <div class="r-title">« 3 nuits par semaine »</div>
+    <div class="r-year">1986</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- Q37 Les Inconnus -->
+<div class="slide" data-type="question" data-num="37" data-country="fr" data-danger="true" data-spotify-uri="spotify:track:2MqxPNiC43aJlVPpjJqNqB">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">37</div><div class="q-flag fr">France</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="37" data-danger="true" data-spotify-uri="spotify:track:2MqxPNiC43aJlVPpjJqNqB">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">37</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">Les Inconnus</div>
+    <div class="r-title">« Auteuil Neuilly Passy »</div>
+    <div class="r-year">1991</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- Q38 Véronique Sanson -->
+<div class="slide" data-type="question" data-num="38" data-country="fr" data-danger="true" data-spotify-uri="spotify:track:4fV9dPAmRKFfTVPQXuQFDI">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">38</div><div class="q-flag fr">France</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="38" data-danger="true" data-spotify-uri="spotify:track:4fV9dPAmRKFfTVPQXuQFDI">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">38</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">Véronique Sanson</div>
+    <div class="r-title">« Amoureuse »</div>
+    <div class="r-year">1972 / reprise 1983</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- Q39 Starshooter -->
+<div class="slide" data-type="question" data-num="39" data-country="fr" data-danger="true" data-spotify-uri="spotify:track:3RQmqhETnKblnV4W5HMVBT">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">39</div><div class="q-flag fr">France</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="39" data-danger="true" data-spotify-uri="spotify:track:3RQmqhETnKblnV4W5HMVBT">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">39</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">Starshooter</div>
+    <div class="r-title">« Killer »</div>
+    <div class="r-year">1980</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- Q40 Téléphone -->
+<div class="slide" data-type="question" data-num="40" data-country="fr" data-danger="true" data-spotify-uri="spotify:track:4bIFPm6T8vvFRNGsEVuKnk">
+  <div class="q-meta"><div class="q-num" style="border-color:var(--rose);color:var(--rose)">40</div><div class="q-flag fr">France</div></div>
+  <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+  <div class="q-mark" style="color:#2e0e18">?</div>
+  <div class="q-hint">♫ &nbsp;Écoutez et trouvez — artiste &amp; titre</div>
+  <div class="scoring">
+    <div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">artiste ou titre</span></div>
+    <div class="scoring-row"><span class="pts">★★ 2 pts</span> <span class="dim">artiste + titre</span></div>
+    <div class="scoring-row"><span class="neg">✗ −1 pt</span> <span class="dim">mauvaise réponse</span></div>
+  </div>
+</div>
+<div class="slide" data-type="reveal" data-num="40" data-danger="true" data-spotify-uri="spotify:track:4bIFPm6T8vvFRNGsEVuKnk">
+  <div class="reveal-content">
+    <div class="q-num" style="margin-bottom:2vh;border-color:var(--rose);color:var(--rose)">40</div>
+    <div class="rule" style="background:linear-gradient(90deg,transparent,#4a1020 15%,var(--rose) 50%,#4a1020 85%,transparent)"></div>
+    <div class="r-artist">Téléphone</div>
+    <div class="r-title">« Hygiaphone »</div>
+    <div class="r-year">1982</div>
+  </div>
+  <div class="scoring"><div class="scoring-row"><span class="pts">★ 1 pt</span> <span class="dim">·</span> <span class="pts">★★ 2 pts</span> <span class="dim">·</span> <span class="neg">✗ −1 pt</span></div></div>
+</div>
+
+<!-- FINAL -->
+<div class="slide center" data-type="final">
+  <div class="reveal-content" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div class="cover-eyebrow">The Bureau — Paris 8</div>
+    <div class="rule"></div>
+    <div class="fin-title">Fin du<br><em style="font-style:italic;color:var(--gold-lt)">Blind Test</em></div>
+    <div class="fin-sub">Comptez vos points &nbsp;✦&nbsp; Le bar est ouvert</div>
+    <div class="rule" style="margin-top:3vh"></div>
+    <div class="cover-count" style="margin-top:1.5vh">Jeudi soir &nbsp;·&nbsp; Bonne soirée à tous</div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// SPOTIFY WEB PLAYBACK SDK + SLIDE ENGINE
+// ═══════════════════════════════════════════════════════════
+
+// ── CONFIG ──
+// Replace with your own Spotify app Client ID (create one free at developer.spotify.com)
+// The redirect URI must match what you set in your Spotify app dashboard.
+const SPOTIFY_CLIENT_ID = 'adc1bf930d904a6684b92c9e0f7166be';
+const REDIRECT_URI = 'https://alexandrealsinacontact-dot.github.io/Blindtestjeudi1106Thebureau/';
+const SCOPES = [
+  'streaming',
+  'user-read-email',
+  'user-read-private',
+  'user-modify-playback-state',
+  'user-read-playback-state'
+].join('%20');
+
+// ── STATE ──
+let spotifyToken = null;
+let spotifyPlayer = null;
+let deviceId = null;
+let isPlaying = false;
+let currentUri = null;
+let spotifyReady = false;
+let fadeInterval = null;
+
+// Slide engine state
+const slides = Array.from(document.querySelectorAll('.slide'));
+let current = 0;
+const progress = document.getElementById('progress');
+const counter = document.getElementById('counter');
+const rays = document.getElementById('rays');
+const ambients = document.querySelectorAll('.ambient');
+
+// ── PKCE AUTH ──
+async function generateCodeVerifier() {
+  const array = new Uint32Array(56 / 2);
+  crypto.getRandomValues(array);
+  return Array.from(array, dec => ('0' + dec.toString(16)).slice(-2)).join('');
+}
+async function generateCodeChallenge(verifier) {
+  const data = new TextEncoder().encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function redirectToSpotify() {
+  const verifier = await generateCodeVerifier();
+  const challenge = await generateCodeChallenge(verifier);
+  sessionStorage.setItem('sp_verifier', verifier);
+  window.location = `https://accounts.spotify.com/authorize`
+    + `?response_type=code&client_id=${SPOTIFY_CLIENT_ID}`
+    + `&scope=${SCOPES}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`
+    + `&code_challenge_method=S256&code_challenge=${challenge}`;
+}
+async function exchangeCode(code) {
+  const verifier = sessionStorage.getItem('sp_verifier');
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&client_id=${SPOTIFY_CLIENT_ID}&code_verifier=${verifier}`
+  });
+  return res.json();
+}
+
+// ── SPOTIFY SDK ──
+window.onSpotifyWebPlaybackSDKReady = () => {
+  if (!spotifyToken) return;
+  spotifyPlayer = new Spotify.Player({
+    name: 'Blind Test — The Bureau',
+    getOAuthToken: cb => cb(spotifyToken),
+    volume: 0.8
+  });
+  spotifyPlayer.addListener('ready', async ({ device_id }) => {
+    deviceId = device_id;
+    spotifyReady = true;
+    // Forcer le transfert de lecture vers CE device immédiatement
+    await fetch('https://api.spotify.com/v1/me/player', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ device_ids: [device_id], play: false })
+    });
+    // Couper ce qui joue éventuellement sur le compte perso
+    await fetch('https://api.spotify.com/v1/me/player/pause', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${spotifyToken}` }
+    });
+  });
+  spotifyPlayer.addListener('not_ready', () => { spotifyReady = false; });
+  spotifyPlayer.addListener('player_state_changed', state => {
+    if (!state) return;
+    // Ignorer les états qui ne viennent pas de CE player (musique perso)
+    if (state.context?.uri && !state.track_window?.current_track) return;
+    isPlaying = !state.paused;
+    updatePlayIcon();
+  });
+  spotifyPlayer.addListener('initialization_error', ({ message }) => console.error('Init error:', message));
+  spotifyPlayer.addListener('authentication_error', ({ message }) => console.error('Auth error:', message));
+  spotifyPlayer.addListener('account_error', ({ message }) => console.error('Account error — Spotify Premium requis:', message));
+  spotifyPlayer.connect();
+};
+
+function loadSpotifySDK() {
+  const s = document.createElement('script');
+  s.src = 'https://sdk.scdn.co/spotify-player.js';
+  document.head.appendChild(s);
+}
+
+// ── PLAYBACK ──
+async function playTrack(uri, retries = 3) {
+  if (!spotifyReady || !deviceId) return;
+  if (uri === currentUri) return; // same track — don't restart
+  currentUri = uri;
+  try {
+    const res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uris: [uri] })
+    });
+    if (res.status === 202 || res.status === 204 || res.ok) {
+      isPlaying = true;
+      document.getElementById('sp-dot').classList.remove('paused');
+    } else if (res.status === 404 && retries > 0) {
+      // Device not found yet — wait and retry
+      await new Promise(r => setTimeout(r, 800));
+      currentUri = null;
+      await playTrack(uri, retries - 1);
+    } else {
+      console.warn('playTrack error', res.status, await res.text());
+    }
+  } catch(e) {
+    console.error('playTrack exception', e);
+  }
+}
+
+async function fadeAndPlay(nextUri) {
+  if (!spotifyReady) { currentUri = nextUri; return; }
+  if (fadeInterval) clearInterval(fadeInterval);
+  // Fade out
+  let vol = 0.8;
+  fadeInterval = setInterval(async () => {
+    vol = Math.max(0, vol - 0.08);
+    await spotifyPlayer.setVolume(vol);
+    if (vol <= 0) {
+      clearInterval(fadeInterval);
+      fadeInterval = null;
+      currentUri = null; // force play
+      await playTrack(nextUri);
+      // Fade in
+      let v2 = 0;
+      const fi = setInterval(async () => {
+        v2 = Math.min(0.8, v2 + 0.08);
+        await spotifyPlayer.setVolume(v2);
+        if (v2 >= 0.8) clearInterval(fi);
+      }, 60);
+    }
+  }, 60);
+}
+
+async function togglePlay() {
+  if (!spotifyReady) return;
+  if (isPlaying) {
+    await spotifyPlayer.pause();
+    document.getElementById('sp-dot').classList.add('paused');
+  } else {
+    await spotifyPlayer.resume();
+    document.getElementById('sp-dot').classList.remove('paused');
+  }
+}
+function updatePlayIcon() {
+  document.getElementById('sp-play-icon').innerHTML = isPlaying
+    ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'  // pause
+    : '<path d="M8 5v14l11-7z"/>';                     // play
+}
+
+// ── SLIDE ENGINE ──
+function goTo(idx) {
+  if (idx < 0 || idx >= slides.length) return;
+
+  const prevSlide = slides[current];
+  const nextSlide = slides[idx];
+
+  prevSlide.classList.remove('active');
+  current = idx;
+  nextSlide.classList.add('active');
+
+  // Progress
+  progress.style.width = (current / (slides.length - 1) * 100) + '%';
+  counter.textContent = (current + 1) + ' / ' + slides.length;
+
+  const type = nextSlide.dataset.type;
+  const uri = nextSlide.dataset.spotifyUri;
+
+  // Rays & ambients
+  if (type === 'question') {
+    rays.classList.add('active');
+    ambients.forEach(a => a.classList.add('on'));
+  } else {
+    rays.classList.remove('active');
+    ambients.forEach(a => a.classList.remove('on'));
+  }
+
+  // Music logic
+  if (type === 'question' && uri) {
+    // Nouvelle question : forcer le lancement même si même URI
+    currentUri = null;
+    if (spotifyReady) fadeAndPlay(uri);
+  } else if (type === 'reveal') {
+    // Révélation : la musique continue, on ne touche à rien
+  } else {
+    // Cover / section / final : couper la musique
+    if (spotifyReady && isPlaying) {
+      spotifyPlayer.pause();
+      isPlaying = false;
+      currentUri = null;
+    }
+  }
+}
+
+// ── INIT ──
+(async () => {
+  // Check for auth callback
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+
+  if (code) {
+    try {
+      const data = await exchangeCode(code);
+      if (data.access_token) {
+        spotifyToken = data.access_token;
+        window.history.replaceState({}, '', window.location.pathname);
+        document.getElementById('sp-connect').style.display = 'none';
+        
+        loadSpotifySDK();
+      }
+    } catch(e) { console.warn('Spotify auth error', e); }
+  }
+
+  // Buttons
+  document.getElementById('btn-sp-login').addEventListener('click', redirectToSpotify);
+  document.getElementById('btn-sp-skip').addEventListener('click', () => {
+    document.getElementById('sp-connect').style.display = 'none';
+  });
+  document.getElementById('sp-playpause').addEventListener('click', togglePlay);
+  document.getElementById('sp-next').addEventListener('click', () => goTo(current + 1));
+  document.getElementById('sp-prev').addEventListener('click', () => goTo(current - 1));
+
+  // Slides init
+  slides[0].classList.add('active');
+  counter.textContent = '1 / ' + slides.length;
+  progress.style.width = '0%';
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', ' ', 'ArrowDown'].includes(e.key)) { e.preventDefault(); goTo(current + 1); }
+    else if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); goTo(current - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  // Click zones
+  document.getElementById('deck').addEventListener('click', e => {
+    if (e.target.closest('#spotify-widget')) return;
+    goTo(current + (e.clientX / window.innerWidth > 0.5 ? 1 : -1));
+  });
+
+  // Touch
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
+  });
+})();
+</script>
+</body>
+</html>
